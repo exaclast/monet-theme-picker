@@ -34,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalUriHandler
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,6 +64,13 @@ fun RenoirScreen(
     }
 
     val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
+
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        if (!PermissionHelper.hasWriteSecureSettings(context) && !PermissionHelper.hasShizukuPermission()) {
+            showPermissionDialog = true
+        }
+    }
 
     val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         uri?.let { viewModel.exportFavorites(context, it) }
@@ -141,6 +149,14 @@ fun RenoirScreen(
                             text = { Text("Import Favorites") },
                             onClick = {
                                 importLauncher.launch(arrayOf("application/json", "*/*"))
+                                expanded = false
+                            }
+                        )
+                        HorizontalDivider()
+                        DropdownMenuItem(
+                            text = { Text("View on GitHub") },
+                            onClick = {
+                                uriHandler.openUri("https://github.com/exaclast/renoir")
                                 expanded = false
                             }
                         )
@@ -310,6 +326,16 @@ fun PermissionInstructionsDialog(onDismiss: () -> Unit) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("Option 2: ADB (Requires PC)", style = MaterialTheme.typography.titleSmall)
                 Text("Run this command on your computer:\nadb shell pm grant com.exaclast.renoir android.permission.WRITE_SECURE_SETTINGS", style = MaterialTheme.typography.bodySmall)
+                Spacer(modifier = Modifier.height(16.dp))
+                val uriHandler = LocalUriHandler.current
+                Text(
+                    text = "View detailed instructions on GitHub",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.clickable { 
+                        uriHandler.openUri("https://github.com/exaclast/renoir#permissions")
+                    }
+                )
             }
         },
         confirmButton = {

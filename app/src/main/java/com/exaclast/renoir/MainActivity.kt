@@ -18,6 +18,7 @@ import org.json.JSONObject
 
 import com.exaclast.renoir.data.AppDatabase
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.isSystemInDarkTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,8 +31,11 @@ class MainActivity : ComponentActivity() {
             val viewModel: ThemeViewModel = viewModel(
                 factory = ThemeViewModel.provideFactory(database.favoriteThemeDao())
             )
+            val systemDarkTheme = isSystemInDarkTheme()
+            
             androidx.compose.runtime.LaunchedEffect(Unit) {
                 viewModel.reloadFromSystem(this@MainActivity)
+                viewModel.toggleDarkTheme(systemDarkTheme)
             }
             val seedColor by viewModel.seedColor.collectAsState()
             val themeStyle by viewModel.themeStyle.collectAsState()
