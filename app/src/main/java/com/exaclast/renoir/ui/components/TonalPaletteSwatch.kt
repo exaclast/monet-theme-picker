@@ -1,4 +1,4 @@
-package com.example.monetthemedesigner.ui.components
+package com.exaclast.renoir.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

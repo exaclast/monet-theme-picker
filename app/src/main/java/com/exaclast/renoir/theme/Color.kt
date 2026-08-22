@@ -1,4 +1,4 @@
-package com.example.monetthemedesigner.theme
+package com.exaclast.renoir.theme
 
 import androidx.compose.ui.graphics.Color
 

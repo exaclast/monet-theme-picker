@@ -1,4 +1,4 @@
-package com.example.monetthemedesigner.ui.components
+package com.exaclast.renoir.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,7 +21,7 @@ import androidx.core.graphics.ColorUtils
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import com.example.monetthemedesigner.data.FavoriteTheme
+import com.exaclast.renoir.data.FavoriteTheme
 
 enum class SliderMode { HSL, RGB, PRESETS, FAVORITES }
 

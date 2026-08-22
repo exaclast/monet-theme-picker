@@ -1,4 +1,4 @@
-package com.example.monetthemedesigner.data
+package com.exaclast.renoir.data
 
 import android.content.ContentValues
 import android.content.Context
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.update
 
 class AppDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
-        const val DATABASE_NAME = "monet_theme_designer.db"
+        const val DATABASE_NAME = "renoir.db"
         const val DATABASE_VERSION = 1
         const val TABLE_FAVORITES = "favorite_themes"
         

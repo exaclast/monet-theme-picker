@@ -1,4 +1,4 @@
-package com.example.monetthemedesigner.data
+package com.exaclast.renoir.data
 
 data class FavoriteTheme(
     val id: Long = 0,

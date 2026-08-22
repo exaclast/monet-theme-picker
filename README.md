@@ -1,4 +1,4 @@
-# Monet Theme Picker
+# Renoir
 
 A modern Android application built with **Jetpack Compose** and **Kotlin** that acts as an advanced Material You (Monet) theme designer, generator, and applier.
 
@@ -17,7 +17,7 @@ Once a theme is designed, the app generates a shell command that uses Android's 
 
 ## Key Components
 
-The codebase is organized under `app/src/main/java/com/example/monetthemedesigner/`:
+The codebase is organized under `app/src/main/java/com/exaclast/renoir/`:
 
 *   **`MainActivity.kt`**: The entry point. Configures the edge-to-edge layout and wraps the app in a `DynamicMaterialTheme` that reacts to the `ThemeViewModel`.
 *   **`ThemeViewModel.kt`**: The single source of truth for the app's state (Seed Color, Palette Style, Dark/Light mode).

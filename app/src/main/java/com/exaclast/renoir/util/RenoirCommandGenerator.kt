@@ -1,10 +1,10 @@
-package com.example.monetthemedesigner.util
+package com.exaclast.renoir.util
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.materialkolor.PaletteStyle
 
-object MonetCommandGenerator {
+object RenoirCommandGenerator {
 
     /**
      * Generates the JSON payload required for the secure setting.

@@ -1,6 +1,6 @@
-package com.example.monetthemedesigner.ui.main
+package com.exaclast.renoir.ui.main
 
-import com.example.monetthemedesigner.data.DataRepository
+import com.exaclast.renoir.data.DataRepository
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first

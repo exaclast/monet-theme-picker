@@ -1,4 +1,4 @@
-package com.example.monetthemedesigner
+package com.exaclast.renoir
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -10,13 +10,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.monetthemedesigner.ui.MonetThemeDesignerScreen
+import com.exaclast.renoir.ui.RenoirScreen
 import com.materialkolor.DynamicMaterialTheme
 
 import android.provider.Settings
 import org.json.JSONObject
 
-import com.example.monetthemedesigner.data.AppDatabase
+import com.exaclast.renoir.data.AppDatabase
 import androidx.compose.ui.platform.LocalContext
 
 class MainActivity : ComponentActivity() {
@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
                 contrastLevel = contrastLevel
             ) {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    MonetThemeDesignerScreen(viewModel = viewModel)
+                    RenoirScreen(viewModel = viewModel)
                 }
             }
         }

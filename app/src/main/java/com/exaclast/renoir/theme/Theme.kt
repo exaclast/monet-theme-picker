@@ -1,4 +1,4 @@
-package com.example.monetthemedesigner.theme
+package com.exaclast.renoir.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -30,7 +30,7 @@ private val LightColorScheme =
   )
 
 @Composable
-fun MonetThemeDesignerTheme(
+fun RenoirTheme(
   darkTheme: Boolean = isSystemInDarkTheme(),
   // Dynamic color is available on Android 12+
   dynamicColor: Boolean = true,

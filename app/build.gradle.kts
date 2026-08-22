@@ -5,10 +5,10 @@ plugins {
 }
 
 android {
-    namespace = "com.example.monetthemedesigner"
+    namespace = "com.exaclast.renoir"
     compileSdk = 36
     defaultConfig {
-        applicationId = "com.example.monetthemedesigner"
+        applicationId = "com.exaclast.renoir"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

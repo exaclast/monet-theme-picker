@@ -1,4 +1,4 @@
-package com.example.monetthemedesigner
+package com.exaclast.renoir
 
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
@@ -7,8 +7,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import com.example.monetthemedesigner.data.FavoriteTheme
-import com.example.monetthemedesigner.data.FavoriteThemeDao
+import com.exaclast.renoir.data.FavoriteTheme
+import com.exaclast.renoir.data.FavoriteThemeDao
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch

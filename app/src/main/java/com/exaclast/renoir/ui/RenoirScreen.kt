@@ -1,4 +1,4 @@
-package com.example.monetthemedesigner.ui
+package com.exaclast.renoir.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -10,11 +10,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.monetthemedesigner.ThemeViewModel
-import com.example.monetthemedesigner.ui.components.ColorPicker
-import com.example.monetthemedesigner.util.ThemeApplier
-import com.example.monetthemedesigner.util.MonetCommandGenerator
-import com.example.monetthemedesigner.util.PermissionHelper
+import com.exaclast.renoir.ThemeViewModel
+import com.exaclast.renoir.ui.components.ColorPicker
+import com.exaclast.renoir.util.ThemeApplier
+import com.exaclast.renoir.util.RenoirCommandGenerator
+import com.exaclast.renoir.util.PermissionHelper
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamicColorScheme
 import androidx.compose.foundation.background
@@ -31,7 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MonetThemeDesignerScreen(
+fun RenoirScreen(
     viewModel: ThemeViewModel = viewModel(),
     modifier: Modifier = Modifier
 ) {
@@ -51,7 +51,7 @@ fun MonetThemeDesignerScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Monet Theme Picker") },
+                title = { Text("Renoir") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -69,7 +69,7 @@ fun MonetThemeDesignerScreen(
                         DropdownMenuItem(
                             text = { Text("Copy Shell Command") },
                             onClick = {
-                                val command = MonetCommandGenerator.generateCommand(seedColor, themeStyle)
+                                val command = RenoirCommandGenerator.generateCommand(seedColor, themeStyle, contrastLevel)
                                 ThemeApplier.copyToClipboard(context, command)
                                 expanded = false
                             }
@@ -180,7 +180,7 @@ fun MonetThemeDesignerScreen(
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(
                     onClick = { 
-                        val payload = MonetCommandGenerator.generateJsonPayload(seedColor, themeStyle, contrastLevel)
+                        val payload = RenoirCommandGenerator.generateJsonPayload(seedColor, themeStyle, contrastLevel)
                         if (PermissionHelper.hasWriteSecureSettings(context)) {
                             ThemeApplier.applyThemeDirectly(context, payload) 
                         } else if (PermissionHelper.isShizukuRunning()) {
@@ -216,7 +216,7 @@ fun PermissionInstructionsDialog(onDismiss: () -> Unit) {
                 Text("Install and start the Shizuku app, then come back and click Apply.", style = MaterialTheme.typography.bodySmall)
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("Option 2: ADB (Requires PC)", style = MaterialTheme.typography.titleSmall)
-                Text("Run this command on your computer:\nadb shell pm grant com.example.monetthemedesigner android.permission.WRITE_SECURE_SETTINGS", style = MaterialTheme.typography.bodySmall)
+                Text("Run this command on your computer:\nadb shell pm grant com.exaclast.renoir android.permission.WRITE_SECURE_SETTINGS", style = MaterialTheme.typography.bodySmall)
             }
         },
         confirmButton = {

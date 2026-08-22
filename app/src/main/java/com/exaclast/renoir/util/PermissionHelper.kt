@@ -1,4 +1,4 @@
-package com.example.monetthemedesigner.util
+package com.exaclast.renoir.util
 
 import android.content.Context
 import android.content.pm.PackageManager
