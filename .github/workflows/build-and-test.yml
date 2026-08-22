@@ -7,10 +7,11 @@ on:
 
 permissions:
   contents: read
+  security-events: write
 
 jobs:
   build:
-    name: Build and Test
+    name: Build, Test, and Analyze
     runs-on: ubuntu-latest
 
     steps:
@@ -24,8 +25,18 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java-kotlin
+          build-mode: manual
 
-      - name: Run Unit Tests
-        run: ./gradlew testDebugUnitTest
+      - name: Build Debug APK and Run Tests
+        # We run clean and --no-build-cache so CodeQL can trace the actual compilation process.
+        # We run the tests in the same step to share the Gradle daemon and save time.
+        run: ./gradlew clean assembleDebug testDebugUnitTest --no-daemon --no-build-cache
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:java-kotlin"
