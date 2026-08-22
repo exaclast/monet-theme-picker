@@ -14,24 +14,24 @@
             android:pivotY="73"
             android:rotation="-30">
             <path
-                android:fillColor="#E91E63"
-                android:pathData="M 46,23 h 16 a 4,4 0 0 1 4,4 v 46 a 12,12 0 0 1 -24,0 v -46 a 4,4 0 0 1 4,-4 z M 54,69 a 4,4 0 1 0 0,8 a 4,4 0 1 0 0,-8 z" />
+                android:fillColor="#000000"
+                android:pathData="M 50,23 h 8 a 4,4 0 0 1 4,4 v 46 a 8,8 0 0 1 -16,0 v -46 a 4,4 0 0 1 4,-4 z M 54,70 a 3,3 0 1 0 0,6 a 3,3 0 1 0 0,-6 z" />
         </group>
         <group
             android:pivotX="54"
             android:pivotY="73"
             android:rotation="0">
             <path
-                android:fillColor="#3F51B5"
-                android:pathData="M 46,23 h 16 a 4,4 0 0 1 4,4 v 46 a 12,12 0 0 1 -24,0 v -46 a 4,4 0 0 1 4,-4 z M 54,69 a 4,4 0 1 0 0,8 a 4,4 0 1 0 0,-8 z" />
+                android:fillColor="#000000"
+                android:pathData="M 50,23 h 8 a 4,4 0 0 1 4,4 v 46 a 8,8 0 0 1 -16,0 v -46 a 4,4 0 0 1 4,-4 z M 54,70 a 3,3 0 1 0 0,6 a 3,3 0 1 0 0,-6 z" />
         </group>
         <group
             android:pivotX="54"
             android:pivotY="73"
             android:rotation="30">
             <path
-                android:fillColor="#00BCD4"
-                android:pathData="M 46,23 h 16 a 4,4 0 0 1 4,4 v 46 a 12,12 0 0 1 -24,0 v -46 a 4,4 0 0 1 4,-4 z M 54,69 a 4,4 0 1 0 0,8 a 4,4 0 1 0 0,-8 z" />
+                android:fillColor="#000000"
+                android:pathData="M 50,23 h 8 a 4,4 0 0 1 4,4 v 46 a 8,8 0 0 1 -16,0 v -46 a 4,4 0 0 1 4,-4 z M 54,70 a 3,3 0 1 0 0,6 a 3,3 0 1 0 0,-6 z" />
         </group>
     </group>
 </vector>
