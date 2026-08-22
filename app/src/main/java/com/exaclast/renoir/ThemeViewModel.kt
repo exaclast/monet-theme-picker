@@ -139,6 +139,90 @@ class ThemeViewModel(private val favoriteDao: FavoriteThemeDao) : ViewModel() {
         _themeStyle.update { style }
     }
 
+    fun exportFavorites(context: android.content.Context, uri: android.net.Uri) {
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                val currentFavorites = favorites.value ?: return@launch
+                val jsonArray = org.json.JSONArray()
+                for (fav in currentFavorites) {
+                    val color = Color(fav.seedColor)
+                    val style = PaletteStyle.values().find { it.name == fav.styleName } ?: PaletteStyle.TonalSpot
+                    val jsonString = com.exaclast.renoir.util.RenoirCommandGenerator.generateJsonPayload(
+                        color = color, 
+                        style = style, 
+                        contrastLevel = fav.contrastLevel
+                    )
+                    jsonArray.put(org.json.JSONObject(jsonString))
+                }
+                context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                    outputStream.write(jsonArray.toString(2).toByteArray())
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun importFavorites(context: android.content.Context, uri: android.net.Uri, replace: Boolean) {
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                if (replace) {
+                    favoriteDao.deleteAllFavorites()
+                }
+                
+                val existingSignatures = if (replace) mutableSetOf() else {
+                    favorites.value?.map { 
+                        Triple(it.seedColor, it.styleName, it.contrastLevel) 
+                    }?.toMutableSet() ?: mutableSetOf()
+                }
+
+                context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                    val jsonString = inputStream.bufferedReader().use { it.readText() }
+                    val jsonArray = org.json.JSONArray(jsonString)
+                    for (i in 0 until jsonArray.length()) {
+                        val obj = jsonArray.getJSONObject(i)
+                        
+                        val hex = if (obj.has("android.theme.customization.system_palette")) obj.getString("android.theme.customization.system_palette") else "6750A4"
+                        val styleStr = if (obj.has("android.theme.customization.theme_style")) obj.getString("android.theme.customization.theme_style") else "TONAL_SPOT"
+                        val contrastStr = if (obj.has("android.theme.customization.contrast")) obj.getString("android.theme.customization.contrast") else "0.0"
+                        
+                        val parsedColor = try {
+                            android.graphics.Color.parseColor("#$hex")
+                        } catch (e: Exception) {
+                            android.graphics.Color.parseColor("#6750A4")
+                        }
+                        
+                        val contrast = contrastStr.toDoubleOrNull() ?: 0.0
+                        
+                        val mappedStyleName = when (styleStr) {
+                            "TONAL_SPOT" -> PaletteStyle.TonalSpot.name
+                            "VIBRANT" -> PaletteStyle.Vibrant.name
+                            "EXPRESSIVE" -> PaletteStyle.Expressive.name
+                            "RAINBOW" -> PaletteStyle.Rainbow.name
+                            "FRUIT_SALAD" -> PaletteStyle.FruitSalad.name
+                            "MONOCHROMATIC" -> PaletteStyle.Monochrome.name
+                            else -> PaletteStyle.TonalSpot.name
+                        }
+                        
+                        val signature = Triple(parsedColor, mappedStyleName, contrast)
+                        if (!existingSignatures.contains(signature)) {
+                            existingSignatures.add(signature)
+                            val favorite = FavoriteTheme(
+                                seedColor = parsedColor,
+                                styleName = mappedStyleName,
+                                contrastLevel = contrast,
+                                isDarkTheme = false // Standardized default
+                            )
+                            favoriteDao.insertFavorite(favorite)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     companion object {
         fun provideFactory(favoriteDao: FavoriteThemeDao): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")

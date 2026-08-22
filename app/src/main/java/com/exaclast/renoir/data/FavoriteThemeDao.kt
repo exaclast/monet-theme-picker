@@ -60,4 +60,10 @@ class FavoriteThemeDao(private val dbHelper: AppDatabase) {
         )
         refreshFavorites()
     }
+
+    suspend fun deleteAllFavorites() {
+        val db = dbHelper.writableDatabase
+        db.delete(AppDatabase.TABLE_FAVORITES, null, null)
+        refreshFavorites()
+    }
 }

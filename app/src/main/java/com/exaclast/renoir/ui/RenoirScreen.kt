@@ -32,6 +32,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,6 +62,47 @@ fun RenoirScreen(
         PermissionInstructionsDialog(onDismiss = { showPermissionDialog = false })
     }
 
+    val context = LocalContext.current
+
+    val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        uri?.let { viewModel.exportFavorites(context, it) }
+    }
+
+    var pendingImportUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let { 
+            if (favorites?.isNotEmpty() == true) {
+                pendingImportUri = it
+            } else {
+                viewModel.importFavorites(context, it, replace = false) 
+            }
+        }
+    }
+
+    if (pendingImportUri != null) {
+        AlertDialog(
+            onDismissRequest = { pendingImportUri = null },
+            title = { Text("Import Favorites") },
+            text = { Text("You already have saved favorites. How would you like to import the new ones?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.importFavorites(context, pendingImportUri!!, replace = false)
+                    pendingImportUri = null
+                }) {
+                    Text("Add to Existing")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    viewModel.importFavorites(context, pendingImportUri!!, replace = true)
+                    pendingImportUri = null
+                }) {
+                    Text("Replace All")
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -70,7 +113,6 @@ fun RenoirScreen(
                 ),
                 actions = {
                     var expanded by remember { mutableStateOf(false) }
-                    val context = LocalContext.current
                     IconButton(onClick = { expanded = true }) {
                         Text("⋮", style = MaterialTheme.typography.titleLarge)
                     }
@@ -83,6 +125,22 @@ fun RenoirScreen(
                             onClick = {
                                 val command = RenoirCommandGenerator.generateCommand(seedColor, themeStyle, contrastLevel)
                                 ThemeApplier.copyToClipboard(context, command)
+                                expanded = false
+                            }
+                        )
+                        if (favorites?.isNotEmpty() == true) {
+                            DropdownMenuItem(
+                                text = { Text("Export Favorites") },
+                                onClick = {
+                                    exportLauncher.launch("renoir_favorites.json")
+                                    expanded = false
+                                }
+                            )
+                        }
+                        DropdownMenuItem(
+                            text = { Text("Import Favorites") },
+                            onClick = {
+                                importLauncher.launch(arrayOf("application/json", "*/*"))
                                 expanded = false
                             }
                         )
@@ -197,8 +255,6 @@ fun RenoirScreen(
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
             
-
-            val context = LocalContext.current
             Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
                 OutlinedButton(
                     onClick = { viewModel.reloadFromSystem(context) },
