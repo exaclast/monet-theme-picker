@@ -66,6 +66,7 @@ fun GradientSliderRow(
 @Composable
 fun ColorPicker(
     selectedColor: Color,
+    isDarkTheme: Boolean,
     onColorSelected: (Color) -> Unit,
     favorites: List<FavoriteTheme>? = null,
     onFavoriteSelected: ((FavoriteTheme) -> Unit)? = null,
@@ -297,7 +298,7 @@ fun ColorPicker(
                         val style = PaletteStyle.values().find { it.name == fav.styleName } ?: PaletteStyle.TonalSpot
                         val scheme = dynamicColorScheme(
                             seedColor = favColor,
-                            isDark = fav.isDarkTheme,
+                            isDark = isDarkTheme,
                             isAmoled = false,
                             style = style,
                             contrastLevel = fav.contrastLevel
@@ -315,16 +316,16 @@ fun ColorPicker(
                                     val c2 = scheme.secondaryContainer
                                     val c3 = scheme.tertiary
 
-                                    drawRect(color = c1, size = androidx.compose.ui.geometry.Size(w / 3, h))
+                                    drawRect(color = c1, size = androidx.compose.ui.geometry.Size(w / 2, h))
                                     drawRect(
                                         color = c2, 
-                                        topLeft = androidx.compose.ui.geometry.Offset(w / 3, 0f), 
-                                        size = androidx.compose.ui.geometry.Size(w / 3, h)
+                                        topLeft = androidx.compose.ui.geometry.Offset(w / 2, 0f), 
+                                        size = androidx.compose.ui.geometry.Size(w / 4, h)
                                     )
                                     drawRect(
                                         color = c3, 
-                                        topLeft = androidx.compose.ui.geometry.Offset(2 * w / 3, 0f), 
-                                        size = androidx.compose.ui.geometry.Size(w / 3, h)
+                                        topLeft = androidx.compose.ui.geometry.Offset(3 * w / 4, 0f), 
+                                        size = androidx.compose.ui.geometry.Size(w / 4, h)
                                     )
                                 }
                             }

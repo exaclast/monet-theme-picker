@@ -32,6 +32,15 @@ class ThemeViewModel(private val favoriteDao: FavoriteThemeDao) : ViewModel() {
     private val _contrastLevel = MutableStateFlow(0.0) // 0.0 is standard
     val contrastLevel: StateFlow<Double> = _contrastLevel.asStateFlow()
 
+    private val _systemSeedColor = MutableStateFlow<Color?>(null)
+    val systemSeedColor: StateFlow<Color?> = _systemSeedColor.asStateFlow()
+
+    private val _systemThemeStyle = MutableStateFlow<PaletteStyle?>(null)
+    val systemThemeStyle: StateFlow<PaletteStyle?> = _systemThemeStyle.asStateFlow()
+
+    private val _systemContrastLevel = MutableStateFlow<Double?>(null)
+    val systemContrastLevel: StateFlow<Double?> = _systemContrastLevel.asStateFlow()
+
     fun updateSeedColor(color: Color) {
         _seedColor.update { color }
     }
@@ -49,15 +58,14 @@ class ThemeViewModel(private val favoriteDao: FavoriteThemeDao) : ViewModel() {
     }
 
     fun initializeFromSettings(colorHex: String?, styleString: String?, contrastLevelString: String? = null) {
-        colorHex?.let {
+        val newSeedColor = colorHex?.let {
             try {
-                val parsedColor = Color(android.graphics.Color.parseColor("#$it"))
-                _seedColor.value = parsedColor
-            } catch (e: Exception) {}
-        }
+                Color(android.graphics.Color.parseColor("#$it"))
+            } catch (e: Exception) { null }
+        } ?: Color(0xFF6750A4)
         
-        styleString?.let {
-            val style = when (it) {
+        val newStyle = styleString?.let {
+            when (it) {
                 "TONAL_SPOT" -> PaletteStyle.TonalSpot
                 "VIBRANT" -> PaletteStyle.Vibrant
                 "EXPRESSIVE" -> PaletteStyle.Expressive
@@ -66,12 +74,23 @@ class ThemeViewModel(private val favoriteDao: FavoriteThemeDao) : ViewModel() {
                 "MONOCHROMATIC" -> PaletteStyle.Monochrome
                 else -> PaletteStyle.TonalSpot
             }
-            _themeStyle.value = style
-        }
+        } ?: PaletteStyle.TonalSpot
         
-        contrastLevelString?.let {
-            _contrastLevel.value = it.toDoubleOrNull() ?: 0.0
-        }
+        val newContrast = contrastLevelString?.toDoubleOrNull() ?: 0.0
+
+        _systemSeedColor.value = newSeedColor
+        _systemThemeStyle.value = newStyle
+        _systemContrastLevel.value = newContrast
+
+        _seedColor.value = newSeedColor
+        _themeStyle.value = newStyle
+        _contrastLevel.value = newContrast
+    }
+
+    fun markCurrentAsSystem() {
+        _systemSeedColor.value = _seedColor.value
+        _systemThemeStyle.value = _themeStyle.value
+        _systemContrastLevel.value = _contrastLevel.value
     }
 
     fun reloadFromSystem(context: android.content.Context) {
@@ -114,7 +133,6 @@ class ThemeViewModel(private val favoriteDao: FavoriteThemeDao) : ViewModel() {
 
     fun loadFavorite(favorite: FavoriteTheme) {
         _seedColor.update { Color(favorite.seedColor) }
-        _isDarkTheme.update { favorite.isDarkTheme }
         _contrastLevel.update { favorite.contrastLevel }
         // Match style by name
         val style = PaletteStyle.values().find { it.name == favorite.styleName } ?: PaletteStyle.TonalSpot

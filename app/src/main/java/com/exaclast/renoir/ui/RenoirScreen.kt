@@ -45,6 +45,14 @@ fun RenoirScreen(
     val contrastLevel by viewModel.contrastLevel.collectAsState()
     val favorites by viewModel.favorites.collectAsState()
 
+    val systemSeedColor by viewModel.systemSeedColor.collectAsState()
+    val systemThemeStyle by viewModel.systemThemeStyle.collectAsState()
+    val systemContrastLevel by viewModel.systemContrastLevel.collectAsState()
+    
+    val isThemeModified = seedColor != systemSeedColor || 
+                          themeStyle != systemThemeStyle || 
+                          contrastLevel != systemContrastLevel
+
     val scrollState = rememberScrollState()
     var showPermissionDialog by remember { mutableStateOf(false) }
 
@@ -127,6 +135,7 @@ fun RenoirScreen(
             
             ColorPicker(
                 selectedColor = seedColor,
+                isDarkTheme = isDarkTheme,
                 onColorSelected = { viewModel.updateSeedColor(it) },
                 favorites = favorites,
                 onFavoriteSelected = { viewModel.loadFavorite(it) },
@@ -189,11 +198,11 @@ fun RenoirScreen(
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
             
 
-            // Apply and Reset Buttons
             val context = LocalContext.current
             Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
                 OutlinedButton(
                     onClick = { viewModel.reloadFromSystem(context) },
+                    enabled = isThemeModified,
                     modifier = Modifier.weight(1f)
                 ) {
                     Text("Reset")
@@ -202,11 +211,14 @@ fun RenoirScreen(
                 Button(
                     onClick = { 
                         val payload = RenoirCommandGenerator.generateJsonPayload(seedColor, themeStyle, contrastLevel)
+                        var success = false
                         if (PermissionHelper.hasWriteSecureSettings(context)) {
                             ThemeApplier.applyThemeDirectly(context, payload) 
+                            success = true
                         } else if (PermissionHelper.isShizukuRunning()) {
                             if (PermissionHelper.hasShizukuPermission()) {
                                 ThemeApplier.applyThemeViaShizuku(context, payload)
+                                success = true
                             } else {
                                 PermissionHelper.requestShizukuPermission(1)
                                 android.widget.Toast.makeText(context, "Please grant Shizuku permission and try again.", android.widget.Toast.LENGTH_SHORT).show()
@@ -214,7 +226,11 @@ fun RenoirScreen(
                         } else {
                             showPermissionDialog = true
                         }
+                        if (success) {
+                            viewModel.markCurrentAsSystem()
+                        }
                     },
+                    enabled = isThemeModified,
                     modifier = Modifier.weight(1f)
                 ) {
                     Text("Apply Theme")
@@ -342,16 +358,16 @@ fun StylePreviewChip(
                 val c2 = scheme.secondaryContainer
                 val c3 = scheme.tertiary
 
-                drawRect(color = c1, size = androidx.compose.ui.geometry.Size(w / 3, h))
+                drawRect(color = c1, size = androidx.compose.ui.geometry.Size(w / 2, h))
                 drawRect(
                     color = c2, 
-                    topLeft = androidx.compose.ui.geometry.Offset(w / 3, 0f), 
-                    size = androidx.compose.ui.geometry.Size(w / 3, h)
+                    topLeft = androidx.compose.ui.geometry.Offset(w / 2, 0f), 
+                    size = androidx.compose.ui.geometry.Size(w / 4, h)
                 )
                 drawRect(
                     color = c3, 
-                    topLeft = androidx.compose.ui.geometry.Offset(2 * w / 3, 0f), 
-                    size = androidx.compose.ui.geometry.Size(w / 3, h)
+                    topLeft = androidx.compose.ui.geometry.Offset(3 * w / 4, 0f), 
+                    size = androidx.compose.ui.geometry.Size(w / 4, h)
                 )
             }
         }
@@ -402,16 +418,16 @@ fun ContrastPreviewChip(
                 val c2 = scheme.secondaryContainer
                 val c3 = scheme.tertiary
 
-                drawRect(color = c1, size = androidx.compose.ui.geometry.Size(w / 3, h))
+                drawRect(color = c1, size = androidx.compose.ui.geometry.Size(w / 2, h))
                 drawRect(
                     color = c2, 
-                    topLeft = androidx.compose.ui.geometry.Offset(w / 3, 0f), 
-                    size = androidx.compose.ui.geometry.Size(w / 3, h)
+                    topLeft = androidx.compose.ui.geometry.Offset(w / 2, 0f), 
+                    size = androidx.compose.ui.geometry.Size(w / 4, h)
                 )
                 drawRect(
                     color = c3, 
-                    topLeft = androidx.compose.ui.geometry.Offset(2 * w / 3, 0f), 
-                    size = androidx.compose.ui.geometry.Size(w / 3, h)
+                    topLeft = androidx.compose.ui.geometry.Offset(3 * w / 4, 0f), 
+                    size = androidx.compose.ui.geometry.Size(w / 4, h)
                 )
             }
         }
