@@ -58,3 +58,7 @@ To build the project locally or install it on a connected device/emulator, you c
 # Install the app on a connected device
 ./gradlew installDebug
 ```
+
+## Acknowledgements
+
+This application was written and developed in collaboration with **Antigravity**, an AI coding assistant by Google DeepMind.
