@@ -21,9 +21,9 @@ The codebase is organized under `app/src/main/java/com/exaclast/renoir/`:
 
 *   **`MainActivity.kt`**: The entry point. Configures the edge-to-edge layout and wraps the app in a `DynamicMaterialTheme` that reacts to the `ThemeViewModel`.
 *   **`ThemeViewModel.kt`**: The single source of truth for the app's state (Seed Color, Palette Style, Dark/Light mode).
-*   **`ui/MonetThemeDesignerScreen.kt`**: The main dashboard. It combines the live preview, configuration controls, and the Termux action card.
+*   **`ui/RenoirScreen.kt`**: The main dashboard. It combines the live preview, configuration controls, and the Termux action card.
 *   **`ui/components/ColorPicker.kt`**: A custom HSL (Hue, Saturation, Lightness) color picker with live gradient backgrounds for intuitive color selection.
-*   **`util/MonetCommandGenerator.kt`**: Generates the exact JSON-formatted shell command required to apply the theme natively on Android 12+.
+*   **`util/RenoirCommandGenerator.kt`**: Generates the exact JSON-formatted shell command required to apply the theme natively on Android 12+.
 *   **`util/TermuxIntegration.kt`**: Handles formatting the intent to dispatch `com.termux.RUN_COMMAND`. Includes a clipboard fallback.
 
 ## How to Build and Run

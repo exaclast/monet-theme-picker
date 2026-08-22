@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import com.exaclast.renoir.data.FavoriteTheme
@@ -243,11 +244,11 @@ fun ColorPicker(
                 Color(0xFFFFEB3B), Color(0xFFFFC107), Color(0xFFFF9800), Color(0xFFFF5722),
                 Color(0xFF795548), Color(0xFF9E9E9E), Color(0xFF607D8B), Color(0xFF000000)
             )
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(48.dp),
+            LazyHorizontalGrid(
+                rows = GridCells.Fixed(2),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.height(160.dp)
+                modifier = Modifier.height(112.dp)
             ) {
                 items(presets) { color ->
                     Box(
