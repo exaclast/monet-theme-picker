@@ -1,6 +1,9 @@
 name: Build and Test
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
@@ -19,14 +22,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: java-kotlin
           build-mode: manual
@@ -34,9 +37,9 @@ jobs:
       - name: Build Debug APK and Run Tests
         # We run clean and --no-build-cache so CodeQL can trace the actual compilation process.
         # We run the tests in the same step to share the Gradle daemon and save time.
-        run: ./gradlew clean assembleDebug testDebugUnitTest --no-daemon --no-build-cache
+        run: ./gradlew clean assembleDebug testDebugUnitTest --no-daemon --no-build-cache -Dkotlin.compiler.execution.strategy=in-process
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
           category: "/language:java-kotlin"
