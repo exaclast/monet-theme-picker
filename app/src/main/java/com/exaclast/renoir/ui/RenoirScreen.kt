@@ -103,7 +103,7 @@ fun RenoirScreen(
                 verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
             ) {
                 SectionHeader("Configuration")
-                val currentFavorite = favorites.find { 
+                val currentFavorite = favorites?.find { 
                     it.seedColor == seedColor.toArgb() && 
                     it.styleName == themeStyle.name && 
                     it.contrastLevel == contrastLevel 

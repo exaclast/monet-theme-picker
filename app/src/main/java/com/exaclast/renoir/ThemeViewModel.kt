@@ -90,8 +90,8 @@ class ThemeViewModel(private val favoriteDao: FavoriteThemeDao) : ViewModel() {
         initializeFromSettings(initialHex, initialStyle, initialContrast)
     }
 
-    val favorites: StateFlow<List<FavoriteTheme>> = favoriteDao.getAllFavorites()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val favorites: StateFlow<List<FavoriteTheme>?> = favoriteDao.getAllFavorites()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     fun saveCurrentThemeAsFavorite() {
         viewModelScope.launch {

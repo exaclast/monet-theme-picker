@@ -21,8 +21,10 @@ import androidx.core.graphics.ColorUtils
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import com.exaclast.renoir.data.FavoriteTheme
+import androidx.compose.foundation.lazy.grid.items
+import com.materialkolor.PaletteStyle
+import com.materialkolor.dynamicColorScheme
 
 enum class SliderMode { HSL, RGB, PRESETS, FAVORITES }
 
@@ -65,7 +67,7 @@ fun GradientSliderRow(
 fun ColorPicker(
     selectedColor: Color,
     onColorSelected: (Color) -> Unit,
-    favorites: List<FavoriteTheme> = emptyList(),
+    favorites: List<FavoriteTheme>? = null,
     onFavoriteSelected: ((FavoriteTheme) -> Unit)? = null,
     onFavoriteDeleted: ((FavoriteTheme) -> Unit)? = null,
     modifier: Modifier = Modifier
@@ -108,7 +110,33 @@ fun ColorPicker(
         Spacer(modifier = Modifier.height(24.dp))
 
         var sliderMode by remember { mutableStateOf(SliderMode.HSL) }
+        var hasInitializedDefaultMode by remember { mutableStateOf(false) }
+
+        val safeFavorites = favorites ?: emptyList()
+
+        LaunchedEffect(favorites) {
+            if (!hasInitializedDefaultMode && favorites != null) {
+                if (favorites.isNotEmpty()) {
+                    sliderMode = SliderMode.FAVORITES
+                }
+                hasInitializedDefaultMode = true
+            }
+        }
+        
+        LaunchedEffect(safeFavorites.isEmpty()) {
+            if (safeFavorites.isEmpty() && sliderMode == SliderMode.FAVORITES) {
+                sliderMode = SliderMode.HSL
+            }
+        }
+        
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+            if (safeFavorites.isNotEmpty()) {
+                FilterChip(
+                    selected = sliderMode == SliderMode.FAVORITES,
+                    onClick = { sliderMode = SliderMode.FAVORITES },
+                    label = { Text("Favorites") }
+                )
+            }
             FilterChip(
                 selected = sliderMode == SliderMode.HSL,
                 onClick = { sliderMode = SliderMode.HSL },
@@ -123,11 +151,6 @@ fun ColorPicker(
                 selected = sliderMode == SliderMode.PRESETS,
                 onClick = { sliderMode = SliderMode.PRESETS },
                 label = { Text("Presets") }
-            )
-            FilterChip(
-                selected = sliderMode == SliderMode.FAVORITES,
-                onClick = { sliderMode = SliderMode.FAVORITES },
-                label = { Text("Favorites") }
             )
         }
 
@@ -262,36 +285,54 @@ fun ColorPicker(
                 }
             }
             SliderMode.FAVORITES -> {
-            if (favorites.isEmpty()) {
-                Box(modifier = Modifier.height(160.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    Text("No favorites saved yet", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            } else {
+            if (safeFavorites.isNotEmpty()) {
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(80.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.height(160.dp)
                 ) {
-                    items(favorites) { fav ->
+                    items(safeFavorites) { fav ->
                         val favColor = Color(fav.seedColor)
+                        val style = PaletteStyle.values().find { it.name == fav.styleName } ?: PaletteStyle.TonalSpot
+                        val scheme = dynamicColorScheme(
+                            seedColor = favColor,
+                            isDark = fav.isDarkTheme,
+                            isAmoled = false,
+                            style = style,
+                            contrastLevel = fav.contrastLevel
+                        )
+                        
                         ElevatedCard(
                             onClick = { onFavoriteSelected?.invoke(fav) },
                             modifier = Modifier.fillMaxWidth().aspectRatio(1f)
                         ) {
-                            Box(modifier = Modifier.fillMaxSize().background(favColor)) {
-                                IconButton(
-                                    onClick = { onFavoriteDeleted?.invoke(fav) },
-                                    modifier = Modifier.align(Alignment.TopEnd).size(24.dp)
-                                ) {
-                                    Text("✕", color = Color.White)
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
+                                    val w = size.width
+                                    val h = size.height
+                                    val c1 = scheme.primary
+                                    val c2 = scheme.secondaryContainer
+                                    val c3 = scheme.tertiary
+
+                                    drawRect(color = c1, size = androidx.compose.ui.geometry.Size(w / 3, h))
+                                    drawRect(
+                                        color = c2, 
+                                        topLeft = androidx.compose.ui.geometry.Offset(w / 3, 0f), 
+                                        size = androidx.compose.ui.geometry.Size(w / 3, h)
+                                    )
+                                    drawRect(
+                                        color = c3, 
+                                        topLeft = androidx.compose.ui.geometry.Offset(2 * w / 3, 0f), 
+                                        size = androidx.compose.ui.geometry.Size(w / 3, h)
+                                    )
                                 }
                             }
                         }
                     }
                 }
-                }
             }
+        }
         }
     }
 }
