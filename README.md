@@ -1,5 +1,9 @@
 # Renoir
 
+[![Build and Test](https://github.com/exaclast/renoir/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/exaclast/renoir/actions/workflows/build-and-test.yml)
+[![Release](https://github.com/exaclast/renoir/actions/workflows/release.yml/badge.svg)](https://github.com/exaclast/renoir/actions/workflows/release.yml)
+[![CodeQL](https://github.com/exaclast/renoir/actions/workflows/codeql.yml/badge.svg)](https://github.com/exaclast/renoir/actions/workflows/codeql.yml)
+
 A modern Android application built with **Jetpack Compose** and **Kotlin** that acts as an advanced Material You (Monet) theme designer, generator, and applier.
 
 ## Project Overview
