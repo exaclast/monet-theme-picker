@@ -82,4 +82,12 @@ dependencies {
   implementation(libs.androidx.navigation3.runtime)
   implementation(libs.androidx.lifecycle.viewmodel.navigation3)
   implementation(libs.material.kolor)
+
+  // Room
+  // Removed Room for raw SQLite
+
+  // Shizuku API
+  val shizuku_version = "13.1.5"
+  implementation("dev.rikka.shizuku:api:$shizuku_version")
+  implementation("dev.rikka.shizuku:provider:$shizuku_version")
 }

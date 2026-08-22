@@ -1,4 +1,4 @@
-# Monet Theme Designer
+# Monet Theme Picker
 
 A modern Android application built with **Jetpack Compose** and **Kotlin** that acts as an advanced Material You (Monet) theme designer, generator, and applier.
 
@@ -22,19 +22,9 @@ The codebase is organized under `app/src/main/java/com/example/monetthemedesigne
 *   **`MainActivity.kt`**: The entry point. Configures the edge-to-edge layout and wraps the app in a `DynamicMaterialTheme` that reacts to the `ThemeViewModel`.
 *   **`ThemeViewModel.kt`**: The single source of truth for the app's state (Seed Color, Palette Style, Dark/Light mode).
 *   **`ui/MonetThemeDesignerScreen.kt`**: The main dashboard. It combines the live preview, configuration controls, and the Termux action card.
-*   **`ui/components/ColorPicker.kt`**: Allows the user to select the seed color via Hex input or preset color chips.
-*   **`ui/components/TonalPaletteSwatch.kt`**: Visualizes the generated tone scales (Primary, Secondary, Tertiary).
+*   **`ui/components/ColorPicker.kt`**: A custom HSL (Hue, Saturation, Lightness) color picker with live gradient backgrounds for intuitive color selection.
 *   **`util/MonetCommandGenerator.kt`**: Generates the exact JSON-formatted shell command required to apply the theme natively on Android 12+.
 *   **`util/TermuxIntegration.kt`**: Handles formatting the intent to dispatch `com.termux.RUN_COMMAND`. Includes a clipboard fallback.
-
-## Termux Integration Setup
-
-To use the direct "Run in Termux" feature, you must configure Termux to allow external apps to run commands:
-1. Install Termux.
-2. Edit your `~/.termux/termux.properties` file in Termux to include: `allow-external-apps = true`.
-3. Ensure Termux has root access (`su`) if you intend to apply secure settings directly on-device.
-
-*Note: The app's `AndroidManifest.xml` already includes `<uses-permission android:name="com.termux.permission.RUN_COMMAND"/>`.*
 
 ## How to Build and Run
 
@@ -48,10 +38,4 @@ To build the project locally or install it on a connected device/emulator, you c
 ./gradlew installDebug
 ```
 
-## Next Steps / Future Work
 
-If you are picking this project up in a new session, here are some areas for expansion:
-1. **Extended Palette Styles**: Currently, the app maps `TonalSpot`, `Vibrant`, and `Expressive`. `material-kolor` (and Android 14+) supports additional styles like `Rainbow`, `FruitSalad`, `Monochrome`, and `Spritz`. You can re-enable these in `MonetCommandGenerator` when you have upgraded to a library version that fully supports them.
-2. **Live Preview Enhancements**: The `LivePreviewArea` is currently a static layout of sample components. It can be expanded into a scrollable, comprehensive showcase of all Material 3 components (Navigation Bar, Modals, Sliders, Cards, etc.).
-3. **Contrast Levels**: Implement the logic to pass contrast parameters (`contrastLevel`) to `DynamicMaterialTheme` to support Material 3's high/medium/standard contrast modes.
-4. **Color Wheel UI**: Replace the basic Hex input and preset chips with a fully interactive HSV color wheel or gradient slider for more granular color picking.
