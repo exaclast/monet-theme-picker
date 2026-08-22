@@ -4,6 +4,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -99,8 +103,25 @@ fun RenoirScreen(
                 verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
             ) {
                 SectionHeader("Configuration")
-                TextButton(onClick = { viewModel.saveCurrentThemeAsFavorite() }) {
-                    Text("⭐ Save Theme")
+                val currentFavorite = favorites.find { 
+                    it.seedColor == seedColor.toArgb() && 
+                    it.styleName == themeStyle.name && 
+                    it.contrastLevel == contrastLevel 
+                }
+                val isFavorite = currentFavorite != null
+                
+                IconButton(onClick = { 
+                    if (isFavorite) {
+                        viewModel.deleteFavorite(currentFavorite!!)
+                    } else {
+                        viewModel.saveCurrentThemeAsFavorite() 
+                    }
+                }) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                        contentDescription = if (isFavorite) "Remove from Favorites" else "Save Theme",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
             

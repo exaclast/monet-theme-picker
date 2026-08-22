@@ -127,7 +127,7 @@ fun ColorPicker(
             FilterChip(
                 selected = sliderMode == SliderMode.FAVORITES,
                 onClick = { sliderMode = SliderMode.FAVORITES },
-                label = { Text("Favs") }
+                label = { Text("Favorites") }
             )
         }
 
