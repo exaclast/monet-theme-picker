@@ -1,0 +1,25 @@
+{
+  "rules": [
+    {
+      "match": {
+        "os_name": ["GrapheneOS", "LineageOS"]
+      },
+      "status": "PARTIAL_SUPPORT",
+      "unsupported_styles": ["EXPRESSIVE", "VIBRANT"],
+      "description": "AOSP ROMs fall back to TONAL_SPOT when EXPRESSIVE or VIBRANT are applied."
+    },
+    {
+      "match": {
+        "os_name": "Pixel"
+      },
+      "status": "FULLY_SUPPORTED"
+    },
+    {
+      "match": {
+        "max_sdk_version": 30
+      },
+      "status": "INCOMPATIBLE",
+      "description": "Monet dynamic theming is only supported on Android 12 (API 31) and higher."
+    }
+  ]
+}

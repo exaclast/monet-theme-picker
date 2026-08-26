@@ -19,6 +19,7 @@ import com.exaclast.renoir.ui.components.ColorPicker
 import com.exaclast.renoir.util.ThemeApplier
 import com.exaclast.renoir.util.RenoirCommandGenerator
 import com.exaclast.renoir.util.PermissionHelper
+import com.exaclast.renoir.util.DeviceCompatibility
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamicColorScheme
 import androidx.compose.foundation.background
@@ -56,19 +57,78 @@ fun RenoirScreen(
                           themeStyle != systemThemeStyle || 
                           contrastLevel != systemContrastLevel
 
+    val showUnsupportedStyles by viewModel.showUnsupportedStyles.collectAsState()
+    val hasSeenCompatibilityWarning by viewModel.hasSeenCompatibilityWarning.collectAsState()
+
     val scrollState = rememberScrollState()
     var showPermissionDialog by remember { mutableStateOf(false) }
+    var showSettingsDialog by remember { mutableStateOf(false) }
+    var showCompatibilityWarningDialog by remember { mutableStateOf(false) }
+    var compatibilityWarningText by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
 
     if (showPermissionDialog) {
         PermissionInstructionsDialog(onDismiss = { showPermissionDialog = false })
     }
 
-    val context = LocalContext.current
-    val uriHandler = LocalUriHandler.current
+    if (showSettingsDialog) {
+        SettingsDialog(
+            showUnsupportedStyles = showUnsupportedStyles,
+            onToggleShowUnsupportedStyles = { viewModel.toggleShowUnsupportedStyles(it) },
+            onShowCompatibilityDialog = {
+                showSettingsDialog = false
+                compatibilityWarningText = DeviceCompatibility.getCompatibilityWarningText(context)
+                showCompatibilityWarningDialog = true
+            },
+            onCopyCommand = {
+                val command = RenoirCommandGenerator.generateCommand(seedColor, themeStyle, contrastLevel)
+                ThemeApplier.copyToClipboard(context, command)
+                showSettingsDialog = false
+            },
+            onViewGitHub = {
+                uriHandler.openUri("https://github.com/exaclast/renoir")
+                showSettingsDialog = false
+            },
+            onDismiss = { showSettingsDialog = false }
+        )
+    }
+
+    if (showCompatibilityWarningDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showCompatibilityWarningDialog = false
+                viewModel.markCompatibilityWarningSeen()
+            },
+            title = { Text("Device Compatibility") },
+            text = { Text(compatibilityWarningText) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showCompatibilityWarningDialog = false
+                    viewModel.markCompatibilityWarningSeen()
+                }) {
+                    Text("I understand")
+                }
+            }
+        )
+    }
 
     androidx.compose.runtime.LaunchedEffect(Unit) {
         if (!PermissionHelper.hasWriteSecureSettings(context) && !PermissionHelper.hasShizukuPermission()) {
             showPermissionDialog = true
+        }
+        if (!hasSeenCompatibilityWarning) {
+            val status = DeviceCompatibility.getStatus(context)
+            if (status == com.exaclast.renoir.util.CompatibilityStatus.PARTIAL_SUPPORT || status == com.exaclast.renoir.util.CompatibilityStatus.INCOMPATIBLE) {
+                compatibilityWarningText = DeviceCompatibility.getCompatibilityWarningText(context)
+                showCompatibilityWarningDialog = true
+            } else if (status == com.exaclast.renoir.util.CompatibilityStatus.UNKNOWN) {
+                compatibilityWarningText = DeviceCompatibility.getCompatibilityWarningText(context)
+                showCompatibilityWarningDialog = true
+            } else {
+                viewModel.markCompatibilityWarningSeen()
+            }
         }
     }
 
@@ -128,14 +188,6 @@ fun RenoirScreen(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        DropdownMenuItem(
-                            text = { Text("Copy Shell Command") },
-                            onClick = {
-                                val command = RenoirCommandGenerator.generateCommand(seedColor, themeStyle, contrastLevel)
-                                ThemeApplier.copyToClipboard(context, command)
-                                expanded = false
-                            }
-                        )
                         if (favorites?.isNotEmpty() == true) {
                             DropdownMenuItem(
                                 text = { Text("Export Favorites") },
@@ -152,11 +204,10 @@ fun RenoirScreen(
                                 expanded = false
                             }
                         )
-                        HorizontalDivider()
                         DropdownMenuItem(
-                            text = { Text("View on GitHub") },
+                            text = { Text("Settings") },
                             onClick = {
-                                uriHandler.openUri("https://github.com/exaclast/renoir")
+                                showSettingsDialog = true
                                 expanded = false
                             }
                         )
@@ -220,7 +271,8 @@ fun RenoirScreen(
             Text("Style", style = MaterialTheme.typography.titleMedium)
             
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                val styles = listOf(
+                val unsupportedStyles = DeviceCompatibility.getUnsupportedStyles(context)
+                val allStyles = listOf(
                     PaletteStyle.TonalSpot, 
                     PaletteStyle.Vibrant, 
                     PaletteStyle.Expressive, 
@@ -228,6 +280,12 @@ fun RenoirScreen(
                     PaletteStyle.Rainbow,
                     PaletteStyle.Monochrome
                 )
+                val styles = if (showUnsupportedStyles) {
+                    allStyles
+                } else {
+                    allStyles.filter { it !in unsupportedStyles }
+                }
+                
                 items(styles) { style ->
                     StylePreviewChip(
                         style = style,
@@ -347,6 +405,78 @@ fun PermissionInstructionsDialog(onDismiss: () -> Unit) {
 }
 
 @Composable
+fun SettingsDialog(
+    showUnsupportedStyles: Boolean,
+    onToggleShowUnsupportedStyles: (Boolean) -> Unit,
+    onShowCompatibilityDialog: () -> Unit,
+    onCopyCommand: () -> Unit,
+    onViewGitHub: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Settings & Advanced") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                val osName = DeviceCompatibility.getOsName(context)
+                val sdkVersion = android.os.Build.VERSION.SDK_INT
+                
+                Text(
+                    text = "Detected OS: $osName (API $sdkVersion)",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable { onShowCompatibilityDialog() }.padding(vertical = 4.dp)
+                )
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Show unsupported styles")
+                    Switch(
+                        checked = showUnsupportedStyles,
+                        onCheckedChange = onToggleShowUnsupportedStyles
+                    )
+                }
+                
+                HorizontalDivider()
+                
+                Text(
+                    text = "Copy Shell Command",
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable { onCopyCommand() }.padding(vertical = 8.dp)
+                )
+                
+                val uriHandler = LocalUriHandler.current
+                Text(
+                    text = "Submit compatibility report",
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable { 
+                        val template = DeviceCompatibility.generateCompatibilityReportTemplate(context)
+                        val encodedBody = java.net.URLEncoder.encode(template, "UTF-8")
+                        val encodedTitle = java.net.URLEncoder.encode("Compatibility Report: $osName (API $sdkVersion)", "UTF-8")
+                        uriHandler.openUri("https://github.com/exaclast/renoir/issues/new?title=$encodedTitle&body=$encodedBody")
+                    }.padding(vertical = 8.dp)
+                )
+                
+                Text(
+                    text = "View on GitHub",
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable { onViewGitHub() }.padding(vertical = 8.dp)
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Close")
+            }
+        }
+    )
+}
+
+@Composable
 fun SectionHeader(title: String) {
     Row(
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
@@ -390,7 +520,6 @@ fun LivePreviewArea() {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             FilterChip(selected = true, onClick = { }, label = { Text("Filter") })
             SuggestionChip(onClick = { }, label = { Text("Suggestion") })
-            AssistChip(onClick = { }, label = { Text("Assist") })
         }
         Spacer(modifier = Modifier.height(16.dp))
 

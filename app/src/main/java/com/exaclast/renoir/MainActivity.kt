@@ -28,8 +28,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             val context = LocalContext.current
             val database = AppDatabase.getDatabase(context)
+            val prefs = context.getSharedPreferences("renoir_settings", android.content.Context.MODE_PRIVATE)
             val viewModel: ThemeViewModel = viewModel(
-                factory = ThemeViewModel.provideFactory(database.favoriteThemeDao())
+                factory = ThemeViewModel.provideFactory(database.favoriteThemeDao(), prefs)
             )
             val systemDarkTheme = isSystemInDarkTheme()
             
