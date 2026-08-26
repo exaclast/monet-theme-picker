@@ -18,7 +18,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.compose.ui.graphics.toArgb
 
-class ThemeViewModel(private val favoriteDao: FavoriteThemeDao) : ViewModel() {
+import android.content.SharedPreferences
+
+class ThemeViewModel(
+    private val favoriteDao: FavoriteThemeDao,
+    private val prefs: SharedPreferences
+) : ViewModel() {
 
     private val _seedColor = MutableStateFlow(Color(0xFF6750A4)) // Default seed color
     val seedColor: StateFlow<Color> = _seedColor.asStateFlow()
@@ -41,6 +46,12 @@ class ThemeViewModel(private val favoriteDao: FavoriteThemeDao) : ViewModel() {
     private val _systemContrastLevel = MutableStateFlow<Double?>(null)
     val systemContrastLevel: StateFlow<Double?> = _systemContrastLevel.asStateFlow()
 
+    private val _showUnsupportedStyles = MutableStateFlow(prefs.getBoolean("showUnsupportedStyles", false))
+    val showUnsupportedStyles: StateFlow<Boolean> = _showUnsupportedStyles.asStateFlow()
+
+    private val _hasSeenCompatibilityWarning = MutableStateFlow(prefs.getBoolean("hasSeenCompatibilityWarning", false))
+    val hasSeenCompatibilityWarning: StateFlow<Boolean> = _hasSeenCompatibilityWarning.asStateFlow()
+
     fun updateSeedColor(color: Color) {
         _seedColor.update { color }
     }
@@ -55,6 +66,16 @@ class ThemeViewModel(private val favoriteDao: FavoriteThemeDao) : ViewModel() {
 
     fun updateContrastLevel(level: Double) {
         _contrastLevel.update { level }
+    }
+
+    fun toggleShowUnsupportedStyles(show: Boolean) {
+        prefs.edit().putBoolean("showUnsupportedStyles", show).apply()
+        _showUnsupportedStyles.value = show
+    }
+
+    fun markCompatibilityWarningSeen() {
+        prefs.edit().putBoolean("hasSeenCompatibilityWarning", true).apply()
+        _hasSeenCompatibilityWarning.value = true
     }
 
     fun initializeFromSettings(colorHex: String?, styleString: String?, contrastLevelString: String? = null) {
@@ -224,11 +245,11 @@ class ThemeViewModel(private val favoriteDao: FavoriteThemeDao) : ViewModel() {
     }
 
     companion object {
-        fun provideFactory(favoriteDao: FavoriteThemeDao): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+        fun provideFactory(favoriteDao: FavoriteThemeDao, prefs: SharedPreferences): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 if (modelClass.isAssignableFrom(ThemeViewModel::class.java)) {
-                    return ThemeViewModel(favoriteDao) as T
+                    return ThemeViewModel(favoriteDao, prefs) as T
                 }
                 throw IllegalArgumentException("Unknown ViewModel class")
             }

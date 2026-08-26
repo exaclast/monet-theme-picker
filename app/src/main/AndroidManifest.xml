@@ -7,6 +7,12 @@
     <!-- Required to apply themes natively without Termux -->
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" tools:ignore="ProtectedPermissions"/>
 
+    <!-- Required on Android 11+ to query for GrapheneOS packages -->
+    <queries>
+        <package android:name="app.grapheneos.apps" />
+        <package android:name="app.grapheneos.setupwizard" />
+    </queries>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"

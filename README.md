@@ -50,6 +50,17 @@ The codebase is organized under `app/src/main/java/com/exaclast/renoir/`:
 - **`util/RenoirCommandGenerator.kt`**: Generates the exact JSON-formatted shell command required to apply the theme natively on Android 12+.
 - **`util/ThemeApplier.kt`** & **`util/PermissionHelper.kt`**: Handles applying the theme directly via `Settings.Secure` if permissions are granted, or routes through Shizuku's IPC mechanism.
 
+## Compatibility
+
+<!-- COMPATIBILITY_START -->
+| OS Name               | SDK Version | Model | Status             | Unsupported Styles  | Notes                                                                      |
+|-----------------------|-------------|-------|--------------------|---------------------|----------------------------------------------------------------------------|
+| GrapheneOS, LineageOS | Any         | Any   | ⚠️ Partial Support | EXPRESSIVE, VIBRANT | AOSP ROMs fall back to TONAL_SPOT when EXPRESSIVE or VIBRANT are applied.  |
+| Pixel                 | Any         | Any   | ✅ Fully Supported  |                     |                                                                            |
+| Any                   | <= 30       | Any   | ❌ Incompatible     |                     | Monet dynamic theming is only supported on Android 12 (API 31) and higher. |
+
+<!-- COMPATIBILITY_END -->
+
 ## How to Build and Run
 
 To build the project locally or install it on a connected device/emulator, you can use the Gradle wrapper:
